@@ -6,6 +6,8 @@ use std::sync::atomic::Ordering;
 use super::script_gen::grab_trimmed_file_lines;
 use std::collections::HashSet; //need hashset for checking duplicate lines
 use std::io::{self, Write};
+use std::sync::{Arc, Mutex};
+
 
 pub const TITLE_IDX: usize = 0;             //index of the line giving the title of the play
 pub const PART_FILE_IDX: usize = 1; //index of the first line containing character info
@@ -17,7 +19,7 @@ pub type PlayConfig = Vec<(String, String)>;
 
 pub struct SceneFragment{
     pub scene_title: String,
-    pub chars_in_play: Vec<Player>,
+    pub chars_in_play: Vec<Arc<Mutex<Player>>>,
 }
 
 impl SceneFragment{
@@ -44,11 +46,13 @@ impl SceneFragment{
                 return Err(GENERATION_FAILURE);
               }
               
-              self.chars_in_play.push(new_player);
+                self.chars_in_play.push(Arc::new(Mutex::new(new_player)));
             }}
         }
         Ok (())
     }
+
+
 
     // add parsed config line to a vector (PlayConfig) holding the lines split by character name and the config file path
     pub fn add_config(&self, cfg_line: &String, play_cfg: &mut PlayConfig){
@@ -224,5 +228,21 @@ impl SceneFragment{
         for plyr in self.chars_in_play.iter().rev() {
             let _ = writeln!(stdout,"[Exit {:?}.]", plyr.char_name);
         }
+    }
+
+
+
+    //added function to check 2 arc locked players
+    pub fn check_ref(&self, player1: Arc<Mutex<Player>>, player2: Arc<Mutex<Player>>) -> Option<Ordering>{
+        
+        match (player1.lock(), player2.lock()){
+            (Ok(ref p1_locked), Ok(ref p2_locked)) => {
+                match p1_locked.partial_cmp(&p2_locked){
+                    Some(ordering) => ordering,
+                    None => Ordering::Equal,
+                }
+            }
+        }
+        failed => Ordering::Equal
     }
 }
