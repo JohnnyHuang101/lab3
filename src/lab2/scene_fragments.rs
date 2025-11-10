@@ -125,7 +125,7 @@ impl SceneFragment{
             return Err(GENERATION_FAILURE);
         }
 
-        self.chars_in_play.sort_by(|a, b| ref_compare(a, b));
+        self.chars_in_play.sort_by(|a, b| SceneFragment::ref_compare(a, b));
         Ok(())
     }
 
@@ -156,10 +156,11 @@ impl SceneFragment{
                         }
                     }
                 }
+                Err(_) => {
+                    let _ = writeln!(stderr,"Warning: failed to lock player {} for reading line numbers", player_idx);
+                }
             }
-            Err(_) => {
-                let _ = writeln!(stderr,"Warning: failed to lock player {} for reading line numbers", player_idx);
-            }
+            
         }
 
         //sort by line_num
@@ -189,7 +190,7 @@ impl SceneFragment{
                     let _ = writeln!(stderr,"Warning: failed to lock player {} for speaking lines", player_idx);
                 }
             }
-
+        }
         Ok(())
 
     }
@@ -217,7 +218,7 @@ impl SceneFragment{
                     }
                 }
                 Err(_) => {
-                    let _ = writeln!(stderr, "Warning: failed to lock player for entry check");
+                    let _ = writeln!(stdout, "Warning: failed to lock player for entry check");
                 }
             }
         }
@@ -237,7 +238,7 @@ impl SceneFragment{
                     let _ = writeln!(stdout, "[Enter {:?}.]", player_locked.char_name);
                 }
                 Err(_) => {
-                    let _ = writeln!(stderr, "Warning: failed to lock player for entry display");
+                    let _ = writeln!(stdout, "Warning: failed to lock player for entry display");
                 }
             }
         }
@@ -261,7 +262,7 @@ impl SceneFragment{
                     }
                 }
                 Err(_) => {
-                    let _ = writeln!(stderr,"Warning: failed to lock player for exit display");
+                    let _ = writeln!(stdout,"Warning: failed to lock player for exit display");
                 }
             }
         }
@@ -279,7 +280,7 @@ impl SceneFragment{
                     let _ = writeln!(stdout,"[Exit {:?}.]", player_locked.char_name);
                 }
                 Err(_) => {
-                    let _ = writeln!(stderr,"Warning: failed to lock player for exit display");
+                    let _ = writeln!(stdout,"Warning: failed to lock player for exit display");
                 }
             }
         }
@@ -288,16 +289,16 @@ impl SceneFragment{
 
 
     //added function to check 2 arc locked players
-    pub fn ref_compare(&self, player1: Arc<Mutex<Player>>, player2: Arc<Mutex<Player>>) -> Option<Ordering>{
+    pub fn ref_compare(player1: &Arc<Mutex<Player>>, player2: &Arc<Mutex<Player>>) -> std::cmp::Ordering{
         
         match (player1.lock(), player2.lock()){
             (Ok(ref p1_locked), Ok(ref p2_locked)) => {
                 match p1_locked.partial_cmp(&*p2_locked){
                     Some(ordering) => ordering,
-                    None => Ordering::Equal,
+                    None => std::cmp::Ordering::Equal,
                 }
             }
-        }
-        _ => Ordering::Equal
+            _failed => std::cmp::Ordering::Equal
+        }   
     }
 }
