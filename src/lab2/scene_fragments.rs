@@ -125,7 +125,7 @@ impl SceneFragment{
             return Err(GENERATION_FAILURE);
         }
 
-        self.chars_in_play.sort();
+        self.chars_in_play.sort_by(|a, b| ref_compare(a, b));
         Ok(())
     }
 
@@ -139,17 +139,26 @@ impl SceneFragment{
         let mut stderr = io::stderr().lock();
 
         for (player_idx, a_player) in self.chars_in_play.iter().enumerate(){
-            for (line_num, _)in a_player.char_lines.iter(){
-                
-                linenum_and_speaker_vec.push((*line_num, player_idx));
-                
-                //insert again into linenume_set to check for dupes
-                let linenum_insert_status = linenum_set.insert(*line_num);
-                if !linenum_insert_status{
-                    if WHINGE.load(Ordering::SeqCst){
-                        let _ = writeln!(stderr,"WHINGE Warning: duplicate line detected for line number: {}", line_num);
+
+            match a_player.lock() {
+
+                Ok(ref player_locked) => {
+                    for (line_num, _) in player_locked.char_lines.iter(){
+                        
+                        linenum_and_speaker_vec.push((*line_num, player_idx));
+                        
+                        //insert again into linenume_set to check for dupes
+                        let linenum_insert_status = linenum_set.insert(*line_num);
+                        if !linenum_insert_status{
+                            if WHINGE.load(Ordering::SeqCst){
+                                let _ = writeln!(stderr,"WHINGE Warning: duplicate line detected for line number: {}", line_num);
+                            }
+                        }
                     }
                 }
+            }
+            Err(_) => {
+                let _ = writeln!(stderr,"Warning: failed to lock player {} for reading line numbers", player_idx);
             }
         }
 
@@ -165,15 +174,21 @@ impl SceneFragment{
         }
         //loop through vector to get player idx and call speak
         for (line_num_speak, player_idx) in linenum_and_speaker_vec.iter(){ //line_num_speak are the line numbers a character is suppoed to speak according to our sorting. Use this with next_line to prevent character from speaking all their lines.
-            while let Some(line_num) = self.chars_in_play[*player_idx].next_line(){  //.iter.enumerate gives reference
-                if line_num <= *line_num_speak{ 
-                    self.chars_in_play[*player_idx].speak(&mut most_recent_speaker);
+            match self.chars_in_play[*player_idx].lock() {
+                Ok(ref mut player_locked) => {
+                    while let Some(line_num) = player_locked.next_line(){  //.iter.enumerate gives reference
+                        if line_num <= *line_num_speak{ 
+                            player_locked.speak(&mut most_recent_speaker);
 
-                }else{
-                    break
+                        }else{
+                            break
+                        }
+                    }
+                }
+                Err(_) => {
+                    let _ = writeln!(stderr,"Warning: failed to lock player {} for speaking lines", player_idx);
                 }
             }
-        }
 
         Ok(())
 
@@ -190,10 +205,23 @@ impl SceneFragment{
         for plyr in &self.chars_in_play {
             //to check if prev player is already in the current list of players by their character name. If not, print the [Enter name] statement
             //followed this example using 'any' to check if elements in vec matches a condition: https://doc.rust-lang.org/std/iter/trait.Iterator.html#method.any
-            if !prev_fragment.chars_in_play.iter().any(|prev_plyr| prev_plyr.char_name == plyr.char_name) {
-                let _ = writeln!(stdout,"[Enter {:?}.]", plyr.char_name);
+            match plyr.lock() {
+                Ok(ref player_locked) => {
+                    if !prev_fragment.chars_in_play.iter().any(|prev_plyr| {
+                        match prev_plyr.lock() {
+                            Ok(ref prev_locked) => prev_locked.char_name == player_locked.char_name,
+                            Err(_) => false,
+                        }
+                    }) {
+                        let _ = writeln!(stdout, "[Enter {:?}.]", player_locked.char_name);
+                    }
+                }
+                Err(_) => {
+                    let _ = writeln!(stderr, "Warning: failed to lock player for entry check");
+                }
             }
         }
+
     }
 
     pub fn enter_all(&self) {
@@ -204,7 +232,14 @@ impl SceneFragment{
         }
 
         for plyr in &self.chars_in_play {
-            let _ = writeln!(stdout,"[Enter {:?}.]", plyr.char_name);
+            match plyr.lock() {
+                Ok(ref player_locked) => {
+                    let _ = writeln!(stdout, "[Enter {:?}.]", player_locked.char_name);
+                }
+                Err(_) => {
+                    let _ = writeln!(stderr, "Warning: failed to lock player for entry display");
+                }
+            }
         }
     }
 
@@ -214,10 +249,23 @@ impl SceneFragment{
         let mut stdout = io::stdout().lock();
 
         for plyr in self.chars_in_play.iter().rev() { //using rev to reverse iterator so we print exit names in reverse order
-            if !next_fragment.chars_in_play.iter().any(|next_plyr| next_plyr.char_name == plyr.char_name) {
-                let _ = writeln!(stdout,"[Exit {:?}.]", plyr.char_name);
+            match plyr.lock() {
+                Ok(ref player_locked) => {
+                    if !next_fragment.chars_in_play.iter().any(|next_plyr| {
+                        match next_plyr.lock() {
+                            Ok(ref next_locked) => next_locked.char_name == player_locked.char_name,
+                            Err(_) => false,
+                        }
+                    }) {
+                        let _ = writeln!(stdout,"[Exit {:?}.]", player_locked.char_name);
+                    }
+                }
+                Err(_) => {
+                    let _ = writeln!(stderr,"Warning: failed to lock player for exit display");
+                }
             }
         }
+
         let _ = writeln!(stdout); //new line to separate the next scene
     }
 
@@ -226,23 +274,30 @@ impl SceneFragment{
         let mut stdout = io::stdout().lock();
 
         for plyr in self.chars_in_play.iter().rev() {
-            let _ = writeln!(stdout,"[Exit {:?}.]", plyr.char_name);
+            match plyr.lock() {
+                Ok(ref player_locked) => {
+                    let _ = writeln!(stdout,"[Exit {:?}.]", player_locked.char_name);
+                }
+                Err(_) => {
+                    let _ = writeln!(stderr,"Warning: failed to lock player for exit display");
+                }
+            }
         }
     }
 
 
 
     //added function to check 2 arc locked players
-    pub fn check_ref(&self, player1: Arc<Mutex<Player>>, player2: Arc<Mutex<Player>>) -> Option<Ordering>{
+    pub fn ref_compare(&self, player1: Arc<Mutex<Player>>, player2: Arc<Mutex<Player>>) -> Option<Ordering>{
         
         match (player1.lock(), player2.lock()){
             (Ok(ref p1_locked), Ok(ref p2_locked)) => {
-                match p1_locked.partial_cmp(&p2_locked){
+                match p1_locked.partial_cmp(&*p2_locked){
                     Some(ordering) => ordering,
                     None => Ordering::Equal,
                 }
             }
         }
-        failed => Ordering::Equal
+        _ => Ordering::Equal
     }
 }
