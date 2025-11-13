@@ -7,7 +7,6 @@ use super::script_gen::grab_trimmed_file_lines;
 use std::collections::HashSet; //need hashset for checking duplicate lines
 use std::io::{self, Write};
 use std::sync::{Arc, Mutex};
-use std::thread;
 
 
 pub const TITLE_IDX: usize = 0;             //index of the line giving the title of the play
@@ -35,39 +34,22 @@ impl SceneFragment{
     // read each line in the config, calls Player's prepare function to parse the lines
     pub fn process_config(&mut self, play_cfg: &PlayConfig) -> Result<(), u8> {
         //note: iter yeilds immutable refs in rusts
-        // let mut stderr = io::stderr().lock();
-        let mut handles = vec![]; // store thread handles
-
+        let mut stderr = io::stderr().lock();
 
         for a_cfg in play_cfg.iter() {
             //example from Expressions slide: match t {(x, y) => do_func(x,y);}
             match a_cfg {(char_name, speak_file) => {
-                let mut new_player = Player::new(&char_name); //need mut since prepare take mut &self
-                let speak_file_clone = speak_file.clone();
-                
-                let handle = thread::spawn(move || {
-                        // let mut stderr = io::stderr().lock();
-                        if let Err(e) = new_player.prepare(&speak_file_clone){ //TODO: confirm if this is the prepare function he wants us to call and if we should call this before or after push to vec?
-                            // let _ = writeln!(stderr,"Error from process_config of SceneFragment: {}", e);
-                            return Err(GENERATION_FAILURE);
-                        }
-                        Ok::<Player, u8>(new_player) // return the prepared player
-                    }
-                );
-                
-                handles.push(handle);
+              let mut new_player = Player::new(&char_name); //need mut since prepare take mut &self
+
+              if let Err(e) = new_player.prepare(speak_file){ //TODO: confirm if this is the prepare function he wants us to call and if we should call this before or after push to vec?
+                let _ = writeln!(stderr,"Error from process_config of SceneFragment: {}", e);
+                return Err(GENERATION_FAILURE);
+              }
+              
+                self.chars_in_play.push(Arc::new(Mutex::new(new_player)));
             }}
         }
-
-        // join to handle the threads
-        for handle in handles {
-            match handle.join() {
-                Ok(Ok(player)) => self.chars_in_play.push(Arc::new(Mutex::new(player))),
-                Ok(Err(_)) | Err(_) => return Err(GENERATION_FAILURE),
-            }
-        }
-
-        Ok(())
+        Ok (())
     }
 
 
@@ -140,12 +122,8 @@ impl SceneFragment{
         }
 
         if let Err(e_code) = self.process_config(&playcfg_var) {
-            let _ = writeln!(
-                stderr,
-                "Error: in script_gen, process_config call failed with error code {}",
-                e_code
-            );
-            panic!("SceneFragment::prepare failed in process_config thread erroed out");
+            let _ = writeln!(stderr,"Error: in script_gen, process_config call failed with error code {}", e_code);
+            return Err(GENERATION_FAILURE);
         }
 
         self.chars_in_play.sort_by(|a, b| SceneFragment::ref_compare(a, b));
