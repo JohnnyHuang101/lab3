@@ -46,9 +46,9 @@ impl SceneFragment{
                 let speak_file_clone = speak_file.clone();
                 
                 let handle = thread::spawn(move || {
-                        let mut stderr = io::stderr().lock();
+                        // let mut stderr = io::stderr().lock();
                         if let Err(e) = new_player.prepare(&speak_file_clone){ //TODO: confirm if this is the prepare function he wants us to call and if we should call this before or after push to vec?
-                            let _ = writeln!(stderr,"Error from process_config of SceneFragment: {}", e);
+                            // let _ = writeln!(stderr,"Error from process_config of SceneFragment: {}", e);
                             return Err(GENERATION_FAILURE);
                         }
                         Ok::<Player, u8>(new_player) // return the prepared player
@@ -135,7 +135,8 @@ impl SceneFragment{
 
         if let Err(e_code) = self.read_config(cfg_fname, &mut playcfg_var) {
             let _ = writeln!(stderr,"Error: in script_gen, read_config call failed with error code {}", e_code);
-            return Err(GENERATION_FAILURE);
+            panic!("Scenefragment prepare failed during read config")
+            // return Err(GENERATION_FAILURE);
         }
 
         if let Err(e_code) = self.process_config(&playcfg_var) {

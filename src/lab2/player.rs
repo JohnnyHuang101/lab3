@@ -54,7 +54,8 @@ impl Player{
         let mut cur_file_line_vec: Vec::<String> = Vec::new();
         if let Err(e_code) = grab_trimmed_file_lines(&part_name, &mut cur_file_line_vec) {
             let _ = writeln!(stdout,"Error: process_script unsucessfully called grab_trimmed_file_lines with error code {}", e_code);
-            return Err(GENERATION_FAILURE);
+            // return Err(GENERATION_FAILURE);
+            panic!("prepare failed for player")
         } 
 
         for a_line in cur_file_line_vec.iter() {

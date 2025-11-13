@@ -6,6 +6,8 @@ use std::sync::atomic::Ordering;
 use super::script_gen::grab_trimmed_file_lines;
 use std::io::{self, Write};
 use std::sync::{Arc, Mutex};
+use std::thread;
+
 
 pub const TITLE_IDX: usize = 0;             //index of the line giving the title of the play
 pub const PART_FILE_IDX: usize = 1; //index of the first line containing character info
@@ -36,6 +38,7 @@ impl Play{
         let mut latest_frag_idx: usize;
         let mut title_str = String::new();
         let mut stderr = io::stderr().lock();
+        let mut handles = Vec::new(); // store thread handles here
 
         //note: iter yeilds immutable refs in rusts
         for a_cfg in play_cfg.iter() {
@@ -51,30 +54,50 @@ impl Play{
                     title_str = String::new();
                     //3: pass text_field to new fragment prepare method method and 4 match result on errors
 
-
-
-                    match self.fragments[latest_frag_idx].lock() {
-                        Ok(mut scene_ref) => {
-                            //here `scene_ref` is an immutable reference to SceneFragment
-                            match scene_ref.prepare(text_field){
-                                Ok(_) => {
-                                    //do nothing
-                                },
-                                Err(e_code) => {
-                                    let _ = writeln!(stderr,"Error from process config of Play after calling prepare on Fragment: {}", e_code);
-                                    return Err(GENERATION_FAILURE);
-                                },
-                            }
-                        }
-                        Err(_) => {
-                            let _ = writeln!(stderr, "Error: Failed to acquire lock on first scene fragment");
-                            return Err(GENERATION_FAILURE);
-                        }
-                    }
                     
+                    //might need for error
+                    let frag_ref = Arc::clone(&self.fragments[latest_frag_idx]);
+                    let cfg_str = text_field.to_string();
+
+                    let handle = thread::spawn(move || {
+                        match frag_ref.lock() {
+                            //here `scene_ref` is an immutable reference to SceneFragment
+                            Ok(mut scene_ref) => match scene_ref.prepare(&cfg_str) {
+                                Ok(_) => Ok(()),//do ntihging 
+                                Err(_e_code) => Err(GENERATION_FAILURE),
+                            },
+                            // let _ = writeln!(stderr,"Error from process config of Play after calling prepare on Fragment: {}", e_code);
+
+                            Err(_) => Err(GENERATION_FAILURE),
+                        }
+                    });
+
+                    handles.push(handle);
                 }
             }}
         }
+        
+
+
+        for handle in handles {
+            match handle.join() {
+                Ok(result) => {
+                    if let Err(e_code) = result {
+                        let _ = writeln!(stderr,"Error from process config of Play after calling prepare on Fragment: {}", e_code);
+                        return Err(GENERATION_FAILURE);
+                    }
+                }
+                Err(_) => {
+                    let _ = writeln!(
+                        stderr,
+                        "Error: Thread panicked while preparing scene fragment"
+                    );
+                    return Err(GENERATION_FAILURE);
+                }
+            }
+        }
+
+
         Ok (())
     }
 
