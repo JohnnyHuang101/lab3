@@ -43,6 +43,8 @@ impl Play{
         //note: iter yeilds immutable refs in rusts
         for a_cfg in play_cfg.iter() {
             //example from Expressions slide: match t {(x, y) => do_func(x,y);}
+            // println!("processing for a single a_cfg");
+
             match a_cfg {(is_title, text_field) => { //both is_title and text_field are refs
                 if *is_title{
                     title_str = text_field.to_string();
@@ -60,7 +62,10 @@ impl Play{
                     let cfg_str = text_field.to_string();
 
                     let handle = thread::spawn(move || {
+
+                        // println!("Thread attempting lock");
                         match frag_ref.lock() {
+
                             //here `scene_ref` is an immutable reference to SceneFragment
                             Ok(mut scene_ref) => match scene_ref.prepare(&cfg_str) {
                                 Ok(_) => Ok(()),//do ntihging 
@@ -72,16 +77,19 @@ impl Play{
                         }
                     });
 
+
                     handles.push(handle);
+                    println!("handle pushed for a_cfg");
                 }
             }}
         }
         
 
-
+        println!("Going to join the handles");
         for handle in handles {
             match handle.join() {
                 Ok(result) => {
+                    println!("join success for handle");
                     if let Err(e_code) = result {
                         let _ = writeln!(stderr,"Error from process config of Play after calling prepare on Fragment: {}", e_code);
                         return Err(GENERATION_FAILURE);
@@ -164,6 +172,7 @@ impl Play{
     //calls the read_config and process_config in order 
     pub fn prepare(&mut self, cfg_fname: &String) -> Result<(), u8> {
         //change the original script gen params: play_title: &mut String, play_vec: &mut Play to fields from Play struct
+        println!("Inside prepare play");
         let mut playcfg_var = ScriptConfig::new();
         let mut stderr = io::stderr().lock();
 
@@ -172,10 +181,13 @@ impl Play{
             let _ = writeln!(stderr,"Error: in prepare, read_config call failed with error code {}", e_code);
             return Err(GENERATION_FAILURE);
         }
+        println!("read config completed for play");
+
         if let Err(e_code) = self.process_config(&playcfg_var) {
             let _ = writeln!(stderr,"Error: in prepare, process_config call failed with error code {}", e_code);
             return Err(GENERATION_FAILURE);
         }
+        println!("process config completed for play");
 
         //chheck if fragments exist and the first one is a title
         if self.fragments.is_empty(){

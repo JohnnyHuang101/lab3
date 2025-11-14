@@ -27,7 +27,7 @@ impl Player{
 
     //adds a line parsed from self.prepare to our chars_lines vector
     fn add_script_line(&mut self, unparsed_line: &String){
-        let mut stderr = io::stderr().lock();
+        // let mut stderr = io::stderr().lock();
 
         if unparsed_line.len() > 0 {
             if let Some((first_token, remain_token)) = unparsed_line.split_once(char::is_whitespace) {
@@ -38,7 +38,7 @@ impl Player{
                 self.char_lines.push((line_num, line_extract.to_string()));
                 } else {
                     if WHINGE.load(atomic::Ordering::SeqCst){
-                        let _ = writeln!(stderr,"Whinge Warning: the first token of the passed in line '{}' does not represent a valid usize value!", unparsed_line);
+                        // let _ = writeln!(stderr,"Whinge Warning: the first token of the passed in line '{}' does not represent a valid usize value!", unparsed_line);
                     }
 
                 }
@@ -49,11 +49,11 @@ impl Player{
     //read lines and their line number from the speak files
     pub fn prepare(&mut self, part_name: &String) -> Result<(), u8> {
 
-        let mut stdout = io::stdout().lock(); // Get a locked handle to stdout
+        // let mut stdout = io::stdout().lock(); // Get a locked handle to stdout
 
         let mut cur_file_line_vec: Vec::<String> = Vec::new();
         if let Err(e_code) = grab_trimmed_file_lines(&part_name, &mut cur_file_line_vec) {
-            let _ = writeln!(stdout,"Error: process_script unsucessfully called grab_trimmed_file_lines with error code {}", e_code);
+            // let _ = writeln!(stdout,"Error: process_script unsucessfully called grab_trimmed_file_lines with error code {}", e_code);
             // return Err(GENERATION_FAILURE);
             panic!("prepare failed for player")
         } 

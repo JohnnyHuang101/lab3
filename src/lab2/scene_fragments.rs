@@ -34,7 +34,7 @@ impl SceneFragment{
     // read each line in the config, calls Player's prepare function to parse the lines
     pub fn process_config(&mut self, play_cfg: &PlayConfig) -> Result<(), u8> {
         //note: iter yeilds immutable refs in rusts
-        let mut stderr = io::stderr().lock();
+        // let mut stderr = io::stderr().lock();
 
         for a_cfg in play_cfg.iter() {
             //example from Expressions slide: match t {(x, y) => do_func(x,y);}
@@ -42,7 +42,7 @@ impl SceneFragment{
               let mut new_player = Player::new(&char_name); //need mut since prepare take mut &self
 
               if let Err(e) = new_player.prepare(speak_file){ //TODO: confirm if this is the prepare function he wants us to call and if we should call this before or after push to vec?
-                let _ = writeln!(stderr,"Error from process_config of SceneFragment: {}", e);
+                // let _ = writeln!(stderr,"Error from process_config of SceneFragment: {}", e);
                 return Err(GENERATION_FAILURE);
               }
               
@@ -59,16 +59,16 @@ impl SceneFragment{
         //split_whitespace gives an iterable, and collect turns that into a collection
         //since using &str, need to do .to_string when inserting into play_cfg because it is of type <String, String>
         let cfg_items: Vec<&str> = cfg_line.split_whitespace().collect(); 
-        let mut stderr = io::stderr().lock();
+        // let mut stderr = io::stderr().lock();
 
         if cfg_items.len() > EXPECTED_TOKENS {
             if WHINGE.load(Ordering::SeqCst) {
-                let _ = writeln!(stderr,"Error: expecting config line to have 2 items but got more than 2 items, pushing first 2 elements");
+                // let _ = writeln!(stderr,"Error: expecting config line to have 2 items but got more than 2 items, pushing first 2 elements");
             }
             play_cfg.push((cfg_items[CHAR_NAME_POS].to_string(), cfg_items[FILE_NAME_TOKEN_POS].to_string()))
         } else if cfg_items.len() < EXPECTED_TOKENS {
             if WHINGE.load(Ordering::SeqCst) {
-                let _ = writeln!(stderr,"Error: expecting config line to have 2 items but got less than 2 items. Not pushing anything");
+                // let _ = writeln!(stderr,"Error: expecting config line to have 2 items but got less than 2 items. Not pushing anything");
             }
         } else {
             play_cfg.push((cfg_items[CHAR_NAME_POS].to_string(), cfg_items[FILE_NAME_TOKEN_POS].to_string()))
@@ -81,7 +81,7 @@ impl SceneFragment{
         //play_title param is now a struct attribute self.scene_title
 
         let mut cfg_lines: Vec<String> = Vec::new();
-        let mut stdout = io::stdout().lock(); // Lock stderr
+        // let mut stdout = io::stdout().lock(); // Lock stderr
 
 
         match grab_trimmed_file_lines(&cfg_fname, &mut cfg_lines) {
@@ -89,7 +89,7 @@ impl SceneFragment{
                 
                 // A config file can have 1 line, so we just check if it's empty
                 if cfg_lines.is_empty() { 
-                    let _ = writeln!(stdout,"Error: no lines from config file '{}' were read, exiting read_config with error code {}", cfg_fname, GENERATION_FAILURE);
+                    // let _ = writeln!(stdout,"Error: no lines from config file '{}' were read, exiting read_config with error code {}", cfg_fname, GENERATION_FAILURE);
                     return Err(GENERATION_FAILURE);
                 }
             
@@ -99,7 +99,7 @@ impl SceneFragment{
                 }
             },
             Err(e_code) => {
-                let _ = writeln!(stdout,"Error: in read_config, call to grab_trimmed_file_lines failed with error code {}", e_code);
+                // let _ = writeln!(stdout,"Error: in read_config, call to grab_trimmed_file_lines failed with error code {}", e_code);
                 return Err(GENERATION_FAILURE);
             }
 
@@ -113,20 +113,30 @@ impl SceneFragment{
     pub fn prepare(&mut self, cfg_fname: &String) -> Result<(), u8> {
         //change the original script gen params: play_title: &mut String, play_vec: &mut SceneFragment to fields from SceneFragment struct
         let mut playcfg_var = PlayConfig::new();
-        let mut stderr = io::stderr().lock();
+        // let mut stderr = io::stderr().lock();
+
+        println!("prepare start");
 
         if let Err(e_code) = self.read_config(cfg_fname, &mut playcfg_var) {
-            let _ = writeln!(stderr,"Error: in script_gen, read_config call failed with error code {}", e_code);
-            panic!("Scenefragment prepare failed during read config")
+            // let _ = writeln!(stderr,"Error: in script_gen, read_config call failed with error code {}", e_code);
+            panic!("Error: in script_gen, read_config call failed with error code {}", e_code)
             // return Err(GENERATION_FAILURE);
         }
+        // println!("read config end");
+        // println!("process config start");
 
         if let Err(e_code) = self.process_config(&playcfg_var) {
-            let _ = writeln!(stderr,"Error: in script_gen, process_config call failed with error code {}", e_code);
-            return Err(GENERATION_FAILURE);
+            // let _ = writeln!(stderr,"Error: in script_gen, process_config call failed with error code {}", e_code);
+            panic!("Error: in script_gen, process_config call failed with error code {}", e_code)
+
+            // return Err(GENERATION_FAILURE);
         }
+        // println!("process config end");
 
         self.chars_in_play.sort_by(|a, b| SceneFragment::ref_compare(a, b));
+
+        println!("returning ok");
+
         Ok(())
     }
 
