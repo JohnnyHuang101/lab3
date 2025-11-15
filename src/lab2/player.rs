@@ -2,7 +2,7 @@
 
 use std::sync::atomic;
 use std::cmp::Ordering;
-use super::declarations::{WHINGE,GENERATION_FAILURE, ZERO_IDX};
+use super::declarations::{WHINGE, ZERO_IDX};//GENERATION_FAILURE
 use super::script_gen::grab_trimmed_file_lines;
 use std::io::{self, Write};
 
@@ -55,7 +55,7 @@ impl Player{
         if let Err(e_code) = grab_trimmed_file_lines(&part_name, &mut cur_file_line_vec) {
             // let _ = writeln!(stdout,"Error: process_script unsucessfully called grab_trimmed_file_lines with error code {}", e_code);
             // return Err(GENERATION_FAILURE);
-            panic!("prepare failed for player")
+            panic!("prepare failed for player {}", e_code)
         } 
 
         for a_line in cur_file_line_vec.iter() {

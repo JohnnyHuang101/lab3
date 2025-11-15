@@ -116,7 +116,7 @@ impl SceneFragment{
                     self.add_config(a_cfg_line, play_cfg)
                 }
             },
-            Err(e_code) => {
+            Err(_e_code) => {
                 // let _ = writeln!(stdout,"Error: in read_config, call to grab_trimmed_file_lines failed with error code {}", e_code);
                 return Err(GENERATION_FAILURE);
             }
@@ -149,7 +149,7 @@ impl SceneFragment{
             //     "Error: in script_gen, process_config call failed with error code {}",
             //     e_code
             // );
-            panic!("SceneFragment::prepare failed in process_config thread erroed out");
+            panic!("SceneFragment::prepare failed in process_config thread erroed out {}", e_code);
         }
         // println!("process config end");
 
