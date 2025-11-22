@@ -80,6 +80,7 @@ impl Server {
 
                     // Handle "quit"
                     if token == "quit" {
+                        println!("shutting down server...");
                         CANCEL.store(true, Ordering::SeqCst);
                         return;
                     }
@@ -92,6 +93,7 @@ impl Server {
                     }
 
                     // Try opening file
+                    println!("NEW FILE REQUEST, trying to open it up...");
                     let mut file = match File::open(&token) {
                         Ok(f) => f,
                         Err(_) => {

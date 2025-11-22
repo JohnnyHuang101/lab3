@@ -14,7 +14,7 @@ pub fn main() -> ReturnWrapper {
     let args: Vec<String> = env::args().collect();
 
     if args.len() != ARGS_MIN {
-        eprintln!("Usage is: >>Program name<< {} <address:port>", args[ARG_PROGRAM_IDX]);
+        eprintln!("Usage is >>Program name<< {} <address:port>", args[ARG_PROGRAM_IDX]);
         return ReturnWrapper::new(EXIT_BAD_CMDLINE);// usage error
     }
 
@@ -27,6 +27,7 @@ pub fn main() -> ReturnWrapper {
         return ReturnWrapper::new(EXIT_BAD_CMDLINE);
     }
 
+    println!("Address successfully found and opened! Running Server...");
     server.run();
 
     ReturnWrapper::new(SUCCESS_CODE) 
