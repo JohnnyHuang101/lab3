@@ -18,6 +18,7 @@ pub const ZERO_IDX: usize = 0;
 pub const EXIT_BAD_CMDLINE: u8 = 1;
 pub const GENERATION_FAILURE: u8 = 2;
 pub const SUCCESS_CODE: u8 = 0;
+pub const CONNECTION_ERR: u8 = 3;
 //whinge, default to false
 pub static WHINGE: AtomicBool = AtomicBool::new(false);
 

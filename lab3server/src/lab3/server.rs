@@ -1,6 +1,8 @@
 use std::net::TcpListener;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::thread;
+use std::io::{Read, Write};
+use std::fs::File;
 
 //a static cancellation flag initialized to false so tat its not true right now
 pub static CANCEL: AtomicBool = AtomicBool::new(false);
@@ -51,24 +53,21 @@ impl Server {
         while !CANCEL.load(Ordering::Relaxed) && self.is_open() {
             //attempt to accept a new connection
             let incoming = listener.accept();
-
+            
             if CANCEL.load(Ordering::Relaxed) {
                 return;
             }
 
-            //if accept succeeded, spawn child thread
+            //spawn child thread from listner
             if let Ok((socket, _addr)) = incoming {
                 thread::spawn(move || {
-                    use std::io::{Read, Write};
-                    use std::fs::File;
-                    use std::sync::atomic::Ordering;
                     let mut stream = socket;
 
                     //read a single token from the stream
                     let mut buffer = [0u8; 1024];
                     let bytes_read = match stream.read(&mut buffer) {
                         Ok(n) => n,
-                        Err(_) => return, // connection error → just exit
+                        Err(_) => return, //shutdown connection upon read errors
                     };
 
                     if bytes_read == 0 {
@@ -80,19 +79,18 @@ impl Server {
 
                     //handle "quit"
                     if token == "quit" {
-                        println!("shutting down server...");
+                        println!("shutting down server!");
                         CANCEL.store(true, Ordering::SeqCst);
                         return;
                     }
 
                     //secuirty check to not allow file browsing. the only file should live in server.rs
-                    if token.contains('/') || token.contains('\\') ||
-                    token.contains("..") || token.contains('$') {
+                    if token.contains("..") || token.contains('/') || token.contains('\\') || token.contains('$') {
                         let _ = stream.write_all(b"Invalid filename. Acces snot granted\n");
                         return;
                     }
 
-                    // Try opening file
+                    //opening file from server side, then stream contents of file to client if success else stream a failure msg
                     println!("NEW FILE REQUEST, trying to open it up...");
                     let mut file = match File::open(&token) {
                         Ok(f) => f,

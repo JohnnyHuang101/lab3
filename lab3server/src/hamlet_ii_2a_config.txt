@@ -1,4 +1,0 @@
-Guildenstern ./data/Guildenstern_hamlet_ii_2a.txt
-King ./data/King_hamlet_ii_2a.txt
-Queen ./data/Queen_hamlet_ii_2a.txt
-Rosencrantz ./data/Rosencrantz_hamlet_ii_2a.txt

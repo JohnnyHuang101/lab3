@@ -1,2 +1,0 @@
-Polonius ./data/Polonius_hamlet_ii_1a.txt
-Reynaldo ./data/Reynaldo_hamlet_ii_1a.txt

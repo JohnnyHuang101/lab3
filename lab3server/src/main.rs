@@ -7,8 +7,10 @@ use lab3::declarations::{
     ARGS_MIN,
     EXIT_BAD_CMDLINE,
     SUCCESS_CODE,
-    ARG_PROGRAM_IDX
+    ARG_PROGRAM_IDX,
+    CONNECTION_ERR
 };
+
 
 pub fn main() -> ReturnWrapper {
     let args: Vec<String> = env::args().collect();
@@ -24,7 +26,7 @@ pub fn main() -> ReturnWrapper {
 
     if let Err(e) = server.open(address) {
         eprintln!("failed to open server on adress {}: {}", address, e);
-        return ReturnWrapper::new(EXIT_BAD_CMDLINE);
+        return ReturnWrapper::new(CONNECTION_ERR);
     }
 
     println!("Address successfully found and opened! Running Server...");
