@@ -78,7 +78,7 @@ impl Server {
                     //convert token to string
                     let token = String::from_utf8_lossy(&buffer[..bytes_read]).trim().to_string();
 
-                    // Handle "quit"
+                    //handle "quit"
                     if token == "quit" {
                         println!("shutting down server...");
                         CANCEL.store(true, Ordering::SeqCst);
@@ -96,8 +96,8 @@ impl Server {
                     println!("NEW FILE REQUEST, trying to open it up...");
                     let mut file = match File::open(&token) {
                         Ok(f) => f,
-                        Err(_) => {
-                            let msg = format!("Could not open the file {}.\n", token);// have to formati it like this or cant stream
+                        Err(e_code) => {
+                            let msg = format!("Could not open the file {}\n with err code: {}\n", token, e_code);// have to formati it like this or cant stream
                             let _ = stream.write_all(msg.as_bytes());
                             return;
                         }

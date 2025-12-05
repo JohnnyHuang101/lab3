@@ -16,26 +16,24 @@ fn main() -> io::Result<()> {
     let address = &args[1];
     let token = &args[2];
 
-    let mut stream = TcpStream::connect(address)?;
+    let mut stream = TcpStream::connect(address)?; //should be passed in as a copy here?
 
     stream.write_all(token.as_bytes())?;
 
     if token != "quit" {
-        // Create a buffered reader to read lines of text
         let reader = BufReader::new(&stream);
 
-        // Read lines until the connection is shut down by the server
+        //this will run continously until conenction is shtudown by server
         for line in reader.lines() {
             match line {
                 Ok(text) => println!("{}", text),
                 Err(e) => eprintln!("Error reading from server: {}", e),
             }
         }
-        // Once the loop finishes (server closes stream)
     } else {
-        let pause = Duration::from_secs(1);
+        let sleep_len = Duration::from_secs(1);
         
-        thread::sleep(pause);
+        thread::sleep(sleep_len);
 
         //CONNecting to wake up the server again. the server needs to be waken up before it listens to commands
         let _ = TcpStream::connect(address)?;
