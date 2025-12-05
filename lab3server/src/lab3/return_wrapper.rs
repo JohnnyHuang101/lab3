@@ -16,7 +16,7 @@ impl ReturnWrapper {
 impl Termination for ReturnWrapper {
     fn report(self) -> ExitCode {
         if self.field_type != 0 {
-            // Lock stderr at runtime inside the function
+            //ned to lock stderr at runtime, inside the calling func
             let mut stderr = io::stderr().lock();
             let _ = writeln!(stderr, "Error: {}", self.field_type);
         }

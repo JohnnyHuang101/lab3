@@ -1,7 +1,7 @@
 use std::net::TcpListener;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::thread;
-use std::io::{Read, Write};
+use std::io::{Read, Write, BufReader, BufWriter};
 use std::fs::File;
 
 //a static cancellation flag initialized to false so tat its not true right now
@@ -61,20 +61,24 @@ impl Server {
             //spawn child thread from listner
             if let Ok((socket, _addr)) = incoming {
                 thread::spawn(move || {
-                    let mut stream = socket;
+
+                    //currently don't need bufreader/writers but adding them in for flexibility for poentital test cases
+                    let mut stream_bufreader = BufReader::new(&socket);
+                    let mut stream_bufwriter = BufWriter::new(&socket);
 
                     //read a single token from the stream
                     let mut buffer = [0u8; 1024];
-                    let bytes_read = match stream.read(&mut buffer) {
+                    let bytes_read = match stream_bufreader.read(&mut buffer) { //we should probably replace read with read_line in the future so we don't have to manage a buffer
                         Ok(n) => n,
                         Err(_) => return, //shutdown connection upon read errors
                     };
 
                     if bytes_read == 0 {
+                        println!("0 bytes read, shutting down server");
                         return; // nothing is send, client not responsive
                     }
 
-                    //convert token to string
+                    //tok2str, using lossy version since it is less strict, we can let our conditions downstream check for validity
                     let token = String::from_utf8_lossy(&buffer[..bytes_read]).trim().to_string();
 
                     //handle "quit"
@@ -84,9 +88,10 @@ impl Server {
                         return;
                     }
 
-                    //secuirty check to not allow file browsing. the only file should live in server.rs
+                    //secuirty check to not allow file browsing. the only file should live in lab3server folder
                     if token.contains("..") || token.contains('/') || token.contains('\\') || token.contains('$') {
-                        let _ = stream.write_all(b"Invalid filename. Acces snot granted\n");
+                        let _ = stream_bufwriter.write_all(b"Invalid filename. cannot contain slashes, $, or '..'. Access not granted!\n");
+                        let _ = stream_bufwriter.flush();
                         return;
                     }
 
@@ -96,18 +101,20 @@ impl Server {
                         Ok(f) => f,
                         Err(e_code) => {
                             let msg = format!("Could not open the file {}\n with err code: {}\n", token, e_code);// have to formati it like this or cant stream
-                            let _ = stream.write_all(msg.as_bytes());
+                            let _ = stream_bufwriter.write_all(msg.as_bytes());
+                            let _ = stream_bufwriter.flush(); //need to flush otherwise client wont get msg
                             return;
                         }
                     };
-
+                    
                     //after fiole is successfully read then we are going to return it
                     let mut file_buf = Vec::new();
                     if file.read_to_end(&mut file_buf).is_ok() {
-                        let _ = stream.write_all(&file_buf);
+                        let _ = stream_bufwriter.write_all(&file_buf);
+                        let _ = stream_bufwriter.flush(); //need to flush otherwise client wont get msg
                     }
-
-                    let _ = stream.shutdown(std::net::Shutdown::Both);
+                    
+                    let _ = socket.shutdown(std::net::Shutdown::Both);
                 });
             }
         }
