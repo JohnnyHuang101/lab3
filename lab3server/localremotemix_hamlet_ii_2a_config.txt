@@ -1,0 +1,4 @@
+Guildenstern net:127.0.0.1:8124:Guildenstern_hamlet_ii_2a.txt
+King ../data/King_hamlet_ii_2a.txt
+Queen net:127.0.0.1:8124:Queen_hamlet_ii_2a.txt
+Rosencrantz ../data/Rosencrantz_hamlet_ii_2a.txt

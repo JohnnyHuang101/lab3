@@ -51,7 +51,7 @@
      * **client: lab3client** w
 * **local/remote file structure:**
     * our local files are stored at the data folder. To access script, config, or speak files from our client, other script/config files 
-    * our remote files are stored inside the lab3server directory. To access script, config, or speak files from our client, other script/config files, we must specify the file location in this format on the command line or inside the caller script/config txt files: <ip_address>:<port_number>:<file_name>. Example: net:127.0.0.1:8124:partial_macbeth_act_i_script.txt
+    * our remote files are stored inside the lab3server directory. To access script, config, or speak files from our client, other script/config files, we must specify the file location in this format on the command line or inside the caller script/config txt files: ```<ip_address>:<port_number>:<file_name>```. Example: net:127.0.0.1:8124:partial_macbeth_act_i_script.txt
 
 ## Insights/Observations
 * ### Client/Server setup
@@ -62,16 +62,29 @@
     * One challenge we spent alot of time on debugging was deadlocks with overuse of .lock(). It was hard to pinpoint where the deadlock was happening, so initally we removed all locks and iteratively added back in locks only at the necessary locations. 
 
 # Usage
-* CD into our unzipped folder (lab2), it should contain the src, data, and target folders.
-* run cargo build to build the project
-* cargo run <path to script file> [whinge] to run the program with the path of the script file. Optionally, provide the 'whinge' flag to recieve additional warning messages when parsing part files.
-* example: if you are in the lab2 folder and the script file 'test_script.txt' is in the lab2/data folder, to run the program with whinge enabled, use cargo run ./data/test_script.txt whinge Note: for each config file path in the script file and each txt part file in the config files, if the part files are not in the same directory as where the program is run on, you should preprend a full qualified path or the correct relative path to the config files and the part files.
+* CD into our unzipped folder, it should contain the data, lab3server, lab3client, and lab3testclient folders.
+* **Step 1: To start server**: cd into lab3server, ```cargo run <ip_addr>:<port_num>``` for our project we used ```cargo run 127.0.0.1:8124```. This is the ip/port combo for all our remote files in our script and config txt.
+* **Optional: To test server connection:** cd into lab3testclient, ```cargo run <ip_addr>:<port_num> <name of file inside lab3server folder>```. Running this, server should respond with printed contents of the file.
+* **Step 2: To start and run client**: ```cargo run <path to script file>```
+    * Starting with a local script file:```<path to script file>``` is relative path to the local file
+    * Starting with a remote script file: ```<path to script file>``` is ```<ip_addr>:<port_num>:<file_name>```. Example: ```cargo run net:127.0.0.1:8124:partial_hamlet_act_ii_script.txt``` (if partial_hamlet_act_ii_script.txt is inside lab3server folder)
 
 
 # Testing
 * we tested the provided partial_hamelt-act_ii_script.txt and partial_macbeth_act_i_script.txt, verified their output and line orders, and the outputs are stored at
-* Local, Remote, and Local/Remote mix testing
-* Stress testing with multiple clients
+* Local, Remote, and Local/Remote mix testing:
+    * for lab provided play script/config/speak files, we store local copies of it in the **data** folder and the remote versions within the **lab3server** folder.
+    * testing local and remote scripts separatley:
+        * to test fully local scripts for the play, we ran the ```cargo run ../data/partial_hamlet_act_ii_script.txt``` and ```cargo run net:127.0.0.1:8124:partial_macbeth_act_i_script.txt```. The lab-provied script and config files all reference speak files in the local data folder with the '../data/. prefix. Testing showed program outputting the correct in-order delviery for both parts
+        * to test fully remote scripts for the play, we ran the ```cargo run net:127.0.0.1:8124:partial_hamlet_act_ii_script.txt``` and the ```cargo run net:127.0.0.1:8124:partial_macbeth_act_i_script.txt```. All script and config files in the **lab3server** folders reference speak files stored in the folder with the **net:127.0.0.1:8124:** prefix. Testing also showed correct delivery for both plays.
+    * testing mixed local and remote scripts:
+        * to test lab-provied play scripts with local/remote mixing: 
+            * we created the lab3server/localremotemix_partial_hamlet_act_ii_script.txt files that references a fully local hamlet_ii_1a_config.txt file, a fully remote hamlet_ii_1b_config.txt file, and a local/remote mixed localremotemix_hamlet_ii_2a_config.txt file (this file references both local and remote speak files). Testing our program shows correct delivery for the hamlet act 2 script. 
+            * We also created the lab3server/localremotemix_partial_macbeth_act_i_script.txt file, that references a fully local macbeth_i_1_config.txt and macbeth_i_2b_config.txt file and fully remote macbeth_i_2a_config.txt file. Testing shows correct delievery for the macbeth act 1 script.
+        * additional local/remote mixed tests:
+            * we created a johnny_file.txt with corresponding config file johnny_file_config.txt in **lab3server** folder. In our local **data** folder, we added the johnny_file_config.txt into the test_1_script.txt file. We then ran this local script file with ```cargo run ../data/test_1_script.txt```, and our program correctly printed out boht the local speak files in **data** and the added remote file johnny_file.txt. 
+* Stress testing with multiple clients:
+    * 
 * Out of order lines testing:
     * we moved lines 6 and 9 of the FIRST_WITCH_macbeth_i_1.txt to the top of the file, and re-ran both the local mode with all part files in the data folder and the remote mode with the remote files served from the lab3server folder. Both tests showed the correct order of First Witch's lines, showing that our sort_by still works after the refactoring for this lab
     * we have more out of order lines in part files associated with the test_1_script.txt which will be discussed below. These out of order lines also appear in correct order from our tests
