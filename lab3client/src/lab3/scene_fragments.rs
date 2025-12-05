@@ -52,7 +52,7 @@ impl SceneFragment{
                             let _ = writeln!(stderr,"Error from process_config of SceneFragment: {}", e);
                             return Err(GENERATION_FAILURE);
                         }
-                        Ok::<Player, u8>(new_player) // return the prepared player
+                        Ok::<Player, u8>(new_player)
                     }
                 );
                 

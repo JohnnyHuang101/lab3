@@ -13,6 +13,8 @@ pub const ARG_WHINGE_IDX: usize = 2;
 
 //for variable initalizations to 0
 pub const ZERO_IDX: usize = 0;
+pub const NETFILE_IDX: usize=4; //for indexing the filename after the 'net:'
+pub const NETFILE_COMPONENT_NUM: usize=3; //addr, portnum, fname
 
 //exit codes
 pub const EXIT_BAD_CMDLINE: u8 = 1;
