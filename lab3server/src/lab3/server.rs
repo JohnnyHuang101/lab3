@@ -1,3 +1,4 @@
+//server.rs binds TCP listner, provides run method that spawns child threads for manage new socket conns. Aman Verma, Hanson Li, Johnny Huang
 use std::net::TcpListener;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::thread;
@@ -70,7 +71,7 @@ impl Server {
                     let mut buffer = [0u8; 1024];
                     let bytes_read = match stream_bufreader.read(&mut buffer) { //we should probably replace read with read_line in the future so we don't have to manage a buffer
                         Ok(n) => n,
-                        Err(_) => return, //shutdown connection upon read errors
+                        Err(_) => return,
                     };
 
                     if bytes_read == 0 {
@@ -111,7 +112,7 @@ impl Server {
                     let mut file_buf = Vec::new();
                     if file.read_to_end(&mut file_buf).is_ok() {
                         let _ = stream_bufwriter.write_all(&file_buf);
-                        let _ = stream_bufwriter.flush(); //need to flush otherwise client wont get msg
+                        let _ = stream_bufwriter.flush();
                     }
                     
                     let _ = socket.shutdown(std::net::Shutdown::Both);

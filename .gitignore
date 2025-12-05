@@ -1,1 +1,3 @@
-/target
+lab3client/target
+lab3server/target
+lab3testclient/c/target

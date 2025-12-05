@@ -46,15 +46,20 @@
 ```
 
 ## Program Overview
-* The main logic of our program is split amongest **player.rs**, **scene_fragments.rs**, and **play.rs**. 
-    * **player.rs** declares a struct Player modeling the the player name and their list of lines they will speak provided by a config file. It implements associated function prepare that parses the config file for the spoken lines as well as the speak function that delviers the next spoken line. It also overloads comparison operators for comparing 2 Player instances.
-     * **scene_fragments.rs** Declares the SceneFragment struct which models a colleciton of Players with their parts for a particular scene (one scene is composed of multiple config files). It contains Player associated functions (process_config, add_config, read_config, prepare) that reads a config file and create Player instances populated with their lines. The recite function sorts the lines across all Players in the SceneFragment's struct and delivers them in order. It also contains enter/exit methods that announces when a player enters or leaves for the scene.
-     * **play.rs** at the script level, play.rs delcares a Play struct that holds a vector of SceneFragments. Its process_config, add_config, read_config, and prepare functions read the script files, parses the scene titles, and create new scene fragments from the config files listed for that scene. Its recite function is mainly used to structure the play delivery according to the structure of the scene, that is announcing the character entrances, delviering the speach from each of the SceneFragments for a scene, and announcing the character exits. 
+* Our program consists of a Sever rust package **lab3server** responsible for serving the play files stored in the folder and a Client rust package **lab3cleint.rs** responsible for ingesting both local play files (in our 'data' folder) (also have a test client **lab3testclient** that tests server connection and remote file serving). 
+    * **server: lab3server** w
+     * **client: lab3client** w
+* **local/remote file structure:**
+    * our local files are stored at the data folder. To access script, config, or speak files from our client, other script/config files 
+    * our remote files are stored inside the lab3server directory. To access script, config, or speak files from our client, other script/config files, we must specify the file location in this format on the command line or inside the caller script/config txt files: <ip_address>:<port_number>:<file_name>. Example: net:127.0.0.1:8124:partial_macbeth_act_i_script.txt
 
-## Insights/Questions
-* one of the challenges we encountered was implementing recite for scene_fragments.rs, where we had to ensure lines spoken by different characters are delivered in the correct order. We detailed our apporach for this under the Structs section
-* one quesiton that we had throughout the lab was if we should give prepare, read_config, add_config, and process_config different names for Play and SceneFargment implementations since one set of associated functions is meant for script files and the other set is meant for the config files.
-
+## Insights/Observations
+* ### Client/Server setup
+    * Our client does a bulk of the compute, whereas the server is just mainly responsible for serving its remote files to the client. From doing this project and from the Piazza discussion, we learned about the fat client/thin server and fat server/thin client concepts. 
+    * We noticed when implemeting the Run method for the Server, there wasn't a requirment for using buffered reader and writers. We wonder if this is because for our thin server approach, we are only reading in one line and printing out a handful of lines so a buffer is not needed. But in a fat server approach where the server handles the actual processing, a buffered reader/writer may be needed.
+    * We noticed one advantage with the fat client setup is the ability to handle local/remote file mixes. With the addition of the get_buffered_reader function in script_gen, our fat client can process both local and remote server files for a play. However, we think it'd be more complex for a fat server to retrieve local client files--this would likely invovle the client sending the file to the server, which makes a fat server/thin client setup more diffcult for this project.
+* ### Deadlocks 
+    * One challenge we spent alot of time on debugging was deadlocks with overuse of .lock(). It was hard to pinpoint where the deadlock was happening, so initally we removed all locks and iteratively added back in locks only at the necessary locations. 
 
 # Usage
 * CD into our unzipped folder (lab2), it should contain the src, data, and target folders.
@@ -62,25 +67,22 @@
 * cargo run <path to script file> [whinge] to run the program with the path of the script file. Optionally, provide the 'whinge' flag to recieve additional warning messages when parsing part files.
 * example: if you are in the lab2 folder and the script file 'test_script.txt' is in the lab2/data folder, to run the program with whinge enabled, use cargo run ./data/test_script.txt whinge Note: for each config file path in the script file and each txt part file in the config files, if the part files are not in the same directory as where the program is run on, you should preprend a full qualified path or the correct relative path to the config files and the part files.
 
-# Structs
-* Refactoring functions from script_gen.rs to associated functions for the Play and Player struct, one of the main changes we had to make was evaluting if the original funciton parameters would necessary/function correctly and if not we change the function signuatre, and replace its references in our function with references to the corresponding struct fields.
-* Refactoring the process config function invovled splitting up its functionalities for reading part files for lines and adding them to PlayLines to the Player struct under the Prepare associated funciton, and move the portion reading the config file for character and part file names to Play under the process_config associated function. Instead of just reading the line and push it to a Play struct like with the original Process_config in script_gen, the new function delegates the reading lines task to Prepare, and instead create new Player objects containing the read lines and append them to the Play struct's vec<player>
-* One challenge was determining when the self reference for associated functions should be mutable. For Recite, we initally made self and immutable reference, resulting in an error because it calls Prepare on its vec of Players, which takes a mutable reference to a Player. Therefore we had to make Recite's self a mutable ref.
-* Refactoring Recite was challenging because now each Player object holds all of their lines, so we had to find a way to deliver their lines in order. Our solution was iterating through each Player object's PlayLines vector, get the line number, and create a vector<(usize, usize)> holding the line number and the Player instance's index in the vec<player>. We then sort that vec<(usize, usize)> by the line_num to figure out when each player should speak. We then iterate through the vec<(usize, usize)>, using the returned Player index to call the next_line and speak methods, while also check if the line_num is larger than what the next_line function returns. If it is, we break to prevent the current Player from speaking all of thier lines. 
-* We had to change the pathing to alot of the declarations in main.rs and add new declarations to play.rs and player.rs because we removed alot of constants and types from script_gen.rs and declarations.rs.
-
-# Return Wrapper:
-* we implemented the wrapper by using a struct and defining 2 functions called report and new. Report has to be implemented for a termination trait because it is in charge of ending ht eprogram and new i had to add because i need it to construct new returnwrappers. at first id dint have it and it gave me lots of compilation errors os io had to add it.
-
-# Scene Fragments
-* To manage multiple consecutive scene fragments, the key change we had to make with in the associated functions add_config and process_config for the Play struct in Play.rs. Specifically, we had to provide implementation of add_config and process_config for the Play struct that correctly reads the Script Config file and correctly create a scenefragment for each config file listed. Then, we had to refactor the read_config, process_config, and prpeare methods in for the SceneFragment struct in scene_fragments.rs so they still correctly works with individual config files. Although the associated function names (prepare/read_config/process_config) are the same between the Play and SceneFragments struct, their functionality is completely different (one is at the Script Config level and the other is at the individal config file level), so separate implementations had to be provided.
-* When it comes to reciting all lines in the correct order, our implementation for SceneFragment's recite from Structs section also works here. For the implementation of recite in the Struct section, we create a vector to track the speaker's line number and their index within the vector of Players and, sort it by line number, and iterate through the sorted Player index and call next_line and speak. Since SceneFragment's field structure remained the same as that in the Struct section, our apporach worked with minimal changes.
-* Another challenge was implementing the correct functions and return types for the PartialOrd, PartialEq, and Ord traits of Player struct. Rust's documentation was helpful in helping us understand the function name and signature that we needed to implement as well as what the return type looks like.
 
 # Testing
-* we tested the provided partial_hamelt-act_ii_script.txt, and verfied it correctly Whinges when the first line doesn't start at 0
-* **test_1_script.txt** is our test script. it contains 3 config txt files (test_1_hrbo_1a.txt, test_1_AJbro_1a.txt, test_1_narrator_1a.txt) split into 2 scenes with 4 speak files (hrbo_repeat.txt, jbro_repeat.txt, narrator_repeat.txt, abro_repeat.txt). 
-    * each of the 4 speak files will have a couple of bad formatting instances. This includes:
+* we tested the provided partial_hamelt-act_ii_script.txt and partial_macbeth_act_i_script.txt, verified their output and line orders, and the outputs are stored at
+* Local, Remote, and Local/Remote mix testing
+* Stress testing with multiple clients
+* Out of order lines testing:
+    * we moved lines 6 and 9 of the FIRST_WITCH_macbeth_i_1.txt to the top of the file, and re-ran both the local mode with all part files in the data folder and the remote mode with the remote files served from the lab3server folder. Both tests showed the correct order of First Witch's lines, showing that our sort_by still works after the refactoring for this lab
+    * we have more out of order lines in part files associated with the test_1_script.txt which will be discussed below. These out of order lines also appear in correct order from our tests
+
+* **test_1_script.txt** is our test script from lab2 that we refactored for this lab to add another scene that include a config/speech file from our server. its updated to contain 4 config txt files (test_1_hrbo_1a.txt, test_1_AJbro_1a.txt, test_1_narrator_1a.txt, johnny_file_config.txt) split into 3 scenes with 4 local speak files hrbo_repeat.txt, jbro_repeat.txt, narrator_repeat.txt, abro_repeat.txt in the 'local' data folder and a remote speak file johnny_file.txt in the server folder that is served by our server. 
+    * new test cases added for this lab:
+        * having a remote config file in local script file:
+            * the test_1_script.txt is in our local 'data' folder. However, it references net:127.0.0.1:8124:johnny_file_config.txt, which is a remote file that lives in our server folder. Testing shows our program called the server twice (for the johnny_file_configt.txt and johnny_file.txt that lives on the server), and correctly printed out all lines among local and remote config/speak files. 
+        * large gaps in line number:
+            * in johnny_file.txt, the line numbers begins with a large offset (begins at 100). Program output shows that even with this large offset, the program delivers all line in the correct sequence 
+    * old test cases that we continued to test and passed:
         * repeated line numbers where the line content is different. This repeated line number also carries across files (ex 2 abro_repeat and jbro_repeat.txt shares line 7, and hbro_repeat.txt and narrator_repeat.txt shares line 0)
             * our program handles by delivering them in sequence. It whinges if whinge mode is on, for every dupelicated line
         * out of order line numbers
@@ -89,10 +91,11 @@
             * when parsing lines with only line number and no text content, our program correctly ignores that line and does not print it out
         * lines with no numbers
             * when parsing lines missing a line number, our program correcty ignores that line and if Whinge is on, it gives a warning about missing line number
-* **test_2_script.txt** is another testing script with two scenes. The first scene doesn't have a config file under it, and the second scene has an empty config file 'test_2_empty_config.txt'.
-    * upon encountering the empty config file, our program will throw an error 'Error: no lines from config file './data/test_2_empty_config.txt' were read, exiting read_config with error code 2' and main function will return the GENERATION_FAILURE code.
+* **test_2_script.txt** is another testing script with two scenes (from lab2). The first scene doesn't have a config file under it, and the second scene has an empty config file 'test_2_empty_config.txt'.
+    * we tested this script file again with no changes. Just like our program in lab 2, our new program exited read_config with error code 2' and main function will return the GENERATION_FAILURE code. This confirms our refactoring handles issues in the local mode the same as our lab2 program. 
 
 # Testing outputs:
 * from the provided partial_hamlet_act_ii_script.txt: ./partial_hamlet_output.txt
+* from the provided partial_macbeth_act_i_script.txt: ./partial_macbeth_output.txt
 * from our 1st test file test_1_script.txt: ./test_1_output.txt
 * from our 2nd test file test_2_script.txt: ./test_2_output.txt

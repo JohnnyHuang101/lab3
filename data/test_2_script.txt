@@ -1,3 +1,5 @@
 [scene] This scene has no config file
+[scene] This scene has a johnny file on server
+net:127.0.0.1:8124:johnny_file_config.txt
 [scene] This scene has empty config file
 ../data/test_2_empty_config.txt

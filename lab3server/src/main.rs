@@ -1,3 +1,4 @@
+//main.rs in lab3server init a new Server instance. Johnny Huang, Aman Verma, Hanson Li
 pub mod lab3;// look inside lab3 folder
 
 use lab3::server::Server;
