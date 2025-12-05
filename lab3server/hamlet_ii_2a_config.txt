@@ -1,4 +1,4 @@
-Guildenstern net:10.232.138.74:8823:Guildenstern_hamlet_ii_2a.txt
-King net:10.232.138.74:8823:King_hamlet_ii_2a.txt
-Queen net:10.232.138.74:8823:Queen_hamlet_ii_2a.txt
-Rosencrantz net:10.232.138.74:8823:Rosencrantz_hamlet_ii_2a.txt
+Guildenstern net:127.0.0.1:8124:Guildenstern_hamlet_ii_2a.txt
+King net:127.0.0.1:8124:King_hamlet_ii_2a.txt
+Queen net:127.0.0.1:8124:Queen_hamlet_ii_2a.txt
+Rosencrantz net:127.0.0.1:8124:Rosencrantz_hamlet_ii_2a.txt

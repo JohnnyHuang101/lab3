@@ -1,4 +1,4 @@
-FIRST_WITCH FIRST_WITCH_macbeth_i_1.txt
-SECOND_WITCH SECOND_WITCH_macbeth_i_1.txt
-THIRD_WITCH THIRD_WITCH_macbeth_i_1.txt
-ALL ALL_macbeth_i_1.txt
+FIRST_WITCH ../data/FIRST_WITCH_macbeth_i_1.txt
+SECOND_WITCH ../data/SECOND_WITCH_macbeth_i_1.txt
+THIRD_WITCH ../data/THIRD_WITCH_macbeth_i_1.txt
+ALL ../data/ALL_macbeth_i_1.txt

@@ -1,5 +1,5 @@
 [scene] Hbro's monologue scene
-./data/test_1_narrator_1a.txt
-./data/test_1_hrbo_1a.txt
+../data/test_1_narrator_1a.txt
+../data/test_1_hrbo_1a.txt
 [scene] Abro and Jbro reply scene
-./data/test_1_AJbro_1a.txt
+../data/test_1_AJbro_1a.txt

@@ -1,1 +1,1 @@
-Hbro ./data/hbro_repeat.txt
+Hbro ../data/hbro_repeat.txt

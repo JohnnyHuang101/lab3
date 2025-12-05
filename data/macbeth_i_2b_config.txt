@@ -1,4 +1,4 @@
-MALCOLM MALCOLM_macbeth_i_2b.txt
-LENNOX LENNOX_macbeth_i_2b.txt
-ROSS ROSS_macbeth_i_2b.txt
-DUNCAN DUNCAN_macbeth_i_2b.txt
+MALCOLM ../data/MALCOLM_macbeth_i_2b.txt
+LENNOX ../data/LENNOX_macbeth_i_2b.txt
+ROSS ../data/ROSS_macbeth_i_2b.txt
+DUNCAN ../data/DUNCAN_macbeth_i_2b.txt

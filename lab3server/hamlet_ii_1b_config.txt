@@ -1,2 +1,2 @@
-Polonius net:10.232.138.74:8823:Polonius_hamlet_ii_1b.txt
-Ophelia net:10.232.138.74:8823:Ophelia_hamlet_ii_1b.txt
+Polonius net:127.0.0.1:8124:Polonius_hamlet_ii_1b.txt
+Ophelia net:127.0.0.1:8124:Ophelia_hamlet_ii_1b.txt

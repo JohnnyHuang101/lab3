@@ -1,1 +1,1 @@
-narrator ./data/narrator_repeat.txt
+narrator ../data/narrator_repeat.txt

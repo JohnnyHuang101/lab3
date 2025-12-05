@@ -1,0 +1,4 @@
+FIRST_WITCH net:127.0.0.1:8124:FIRST_WITCH_macbeth_i_1.txt
+SECOND_WITCH net:127.0.0.1:8124:SECOND_WITCH_macbeth_i_1.txt
+THIRD_WITCH net:127.0.0.1:8124:THIRD_WITCH_macbeth_i_1.txt
+ALL net:127.0.0.1:8124:ALL_macbeth_i_1.txt

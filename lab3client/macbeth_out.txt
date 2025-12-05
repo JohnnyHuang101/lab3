@@ -1,0 +1,194 @@
+Inside prepare play
+calling get buffered reader
+read config completed for play
+handle pushed for a_cfg
+prepare start
+calling get buffered reader
+prepare start
+calling get buffered reader
+handle pushed for a_cfg
+calling get buffered reader
+calling get buffered reader
+calling get buffered reader
+calling get buffered reader
+handle pushed for a_cfg
+Going to join the handles
+returning ok
+calling get buffered reader
+calling get buffered reader
+calling get buffered reader
+prepare start
+calling get buffered reader
+join success for handle
+returning ok
+calling get buffered reader
+calling get buffered reader
+calling get buffered reader
+join success for handle
+calling get buffered reader
+returning ok
+join success for handle
+process config completed for play
+"Macbeth ACT I SCENE I An open Place Thunder and Lightning by William Shakespeare"!
+[Enter "FIRST_WITCH".]
+[Enter "SECOND_WITCH".]
+[Enter "THIRD_WITCH".]
+[Enter "ALL".]
+
+Speaker: FIRST_WITCH
+"When shall we three meet again?"
+"In thunder, lightning, or in rain?"
+
+Speaker: SECOND_WITCH
+"When the hurlyburly's done,"
+"When the battle's lost and won."
+
+Speaker: THIRD_WITCH
+"That will be ere the set of sun."
+
+Speaker: FIRST_WITCH
+"Where the place?"
+
+Speaker: SECOND_WITCH
+"Upon the heath."
+
+Speaker: THIRD_WITCH
+"There to meet with Macbeth."
+
+Speaker: FIRST_WITCH
+"I come, Graymalkin!"
+
+Speaker: ALL
+"Paddock calls:--anon:--"
+"Fair is foul, and foul is fair:"
+"Hover through the fog and filthy air."
+[Exit "ALL".]
+[Exit "THIRD_WITCH".]
+[Exit "SECOND_WITCH".]
+[Exit "FIRST_WITCH".]
+
+"Macbeth ACT I SCENE II A Camp near Forres by William Shakespeare"
+[Enter "DUNCAN".]
+[Enter "MALCOLM".]
+[Enter "SOLDIER".]
+
+Speaker: DUNCAN
+"What bloody man is that? He can report,"
+"As seemeth by his plight, of the revolt"
+"The newest state."
+
+Speaker: MALCOLM
+"This is the sergeant"
+"Who, like a good and hardy soldier, fought"
+"'Gainst my captivity.--Hail, brave friend!"
+"Say to the king the knowledge of the broil"
+"As thou didst leave it."
+
+Speaker: SOLDIER
+"Doubtful it stood;"
+"As two spent swimmers that do cling together"
+"And choke their art. The merciless Macdonwald,--"
+"Worthy to be a rebel,--for to that"
+"The multiplying villainies of nature"
+"Do swarm upon him,--from the Western isles"
+"Of kerns and gallowglasses is supplied;"
+"And fortune, on his damned quarrel smiling,"
+"Show'd like a rebel's whore. But all's too weak;"
+"For brave Macbeth,--well he deserves that name,--"
+"Disdaining fortune, with his brandish'd steel,"
+"Which smok'd with bloody execution,"
+"Like valor's minion,"
+"Carv'd out his passag tTill he fac'd the slave;"
+"And ne'er shook hands, nor bade farewell to him,"
+"Till he unseam'd him from the nave to the chaps,"
+"And fix'd his head upon our battlements."
+
+Speaker: DUNCAN
+"O valiant cousin! worthy gentleman!"
+
+Speaker: SOLDIER
+"As whence the sun 'gins his reflection"
+"Shipwrecking storms and direful thunders break;"
+"So from that spring, whence comfort seem'd to come"
+"Discomfort swells. Mark, King of Scotland, mark:"
+"No sooner justice had, with valor arm'd,"
+"Compell'd these skipping kerns to trust their heels,"
+"But the Norweyan lord, surveying vantage,"
+"With furbish'd arms and new supplies of men,"
+"Began a fresh assault."
+
+Speaker: DUNCAN
+"Dismay'd not this"
+"Our captains, Macbeth and Banquo?"
+
+Speaker: SOLDIER
+"Yes;"
+"As sparrows eagles, or the hare the lion."
+"If I say sooth, I must report they were"
+"As cannons overcharg'd with double cracks;"
+"So they"
+"Doubly redoubled strokes upon the foe:"
+"Except they meant to bathe in reeking wounds,"
+"Or memorize another Golgotha,"
+"I cannot tell:--"
+"But I am faint; my gashes cry for help."
+
+Speaker: DUNCAN
+"So well thy words become thee as thy wounds;"
+"They smack of honor both.--Go, get him surgeons."
+"Who comes here?"
+[Exit "SOLDIER".]
+
+[Enter "LENNOX".]
+[Enter "ROSS".]
+
+Speaker: MALCOLM
+"The worthy Thane of Ross."
+
+Speaker: LENNOX
+"What a haste looks through his eyes! So should he look"
+"That seems to speak things strange."
+
+Speaker: ROSS
+"God save the King!"
+
+Speaker: DUNCAN
+"Whence cam'st thou, worthy thane?"
+
+Speaker: ROSS
+"From Fife, great king;"
+"Where the Norweyan banners flout the sky"
+"And fan our people cold."
+"Norway himself, with terrible numbers,"
+"Assisted by that most disloyal traitor"
+"The Thane of Cawdor, began a dismal conflict;"
+"Till that Bellona's bridegroom, lapp'd in proof,"
+"Confronted him with self-comparisons,"
+"Point against point rebellious, arm 'gainst arm,"
+"Curbing his lavish spirit: and, to conclude,"
+"The victory fell on us."
+
+Speaker: DUNCAN
+"Great happiness!"
+
+Speaker: ROSS
+"That now"
+"Sweno, the Norways' king, craves composition;"
+"Nor would we deign him burial of his men"
+"Till he disbursed, at Saint Colme's-inch,"
+"Ten thousand dollars to our general use."
+
+Speaker: DUNCAN
+"No more that Thane of Cawdor shall deceive"
+"Our bosom interest:--go pronounce his present death,"
+"And with his former title greet Macbeth."
+
+Speaker: ROSS
+"I'll see it done."
+
+Speaker: DUNCAN
+"What he hath lost, noble Macbeth hath won."
+[Exit "DUNCAN".]
+[Exit "ROSS".]
+[Exit "LENNOX".]
+[Exit "MALCOLM".]

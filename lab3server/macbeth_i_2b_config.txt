@@ -1,0 +1,4 @@
+MALCOLM net:127.0.0.1:8124:MALCOLM_macbeth_i_2b.txt
+LENNOX net:127.0.0.1:8124:LENNOX_macbeth_i_2b.txt
+ROSS net:127.0.0.1:8124:ROSS_macbeth_i_2b.txt
+DUNCAN net:127.0.0.1:8124:DUNCAN_macbeth_i_2b.txt
