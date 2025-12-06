@@ -1,4 +1,4 @@
-//refactored script_gen.rs. Provides the grab_trimmed_file_lines used by other rs files to read in lines from a speak file. Aman Verma, Johnny Huang, Hanson Li
+//refactored script_gen.rs. Provides the get_buffered_reader to process either remote or local filenames and the grab_trimmed_file_lines used by other rs files to read in lines from a speak file. Aman Verma, Johnny Huang, Hanson Li
 
 use std::fs::File;
 use std::io::{self, BufRead, BufReader, Read, Write};
@@ -6,14 +6,14 @@ use std::net::TcpStream;
 use super::declarations::{GENERATION_FAILURE, NETFILE_IDX, NETFILE_COMPONENT_NUM};
 use std::net::IpAddr; //for checking valid ip address
 
+//processes the fname, either local or a remote file (indicated by 'net' for remote files)
 fn get_buffered_reader(file_name: &String) -> io::Result<BufReader<Box<dyn Read>>> {
     if file_name.starts_with("net:") {
         let fname_after_net = &file_name[NETFILE_IDX..]; //pos 4 in file_name is the ip addr followed by actual fname
 
         let fname_parts: Vec<&str> = fname_after_net.split(":").collect();
 
-        //if num of componenets !=3, return an error msg
-        if fname_parts.len() != NETFILE_COMPONENT_NUM {
+        if fname_parts.len() != NETFILE_COMPONENT_NUM { //this is 3
             return Err(io::Error::new(io::ErrorKind::InvalidInput, "remote filename incorrect. Need to be in format net:<ip addr>:<port number>:<filename>."));
         }
         
@@ -46,7 +46,6 @@ pub fn grab_trimmed_file_lines(file_name: &String, file_line_vec: &mut Vec<Strin
     //using match since error code could be helpful here
 
     let mut stdout = io::stdout().lock();
-    println!("calling get buffered reader");
     match get_buffered_reader(file_name) {
         Ok(mut buf_reader) => {
             let mut cur_read_str = String::new();

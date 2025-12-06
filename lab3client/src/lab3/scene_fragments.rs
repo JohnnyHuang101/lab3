@@ -35,8 +35,7 @@ impl SceneFragment{
     // read each line in the config, calls Player's prepare function to parse the lines
     pub fn process_config(&mut self, play_cfg: &PlayConfig) -> Result<(), u8> {
         //note: iter yeilds immutable refs in rusts
-        // let mut stderr = io::stderr().lock();
-        let mut handles = vec![]; // store thread handles
+        let mut handles = vec![];
 
 
         for a_cfg in play_cfg.iter() {
@@ -60,7 +59,6 @@ impl SceneFragment{
             }}
         }
 
-        // join to handle the threads
         for handle in handles {
             match handle.join() {
                 Ok(Ok(player)) => self.chars_in_play.push(Arc::new(Mutex::new(player))), //push arc init with mutex init with player instad of pushing just player step 4
@@ -78,7 +76,6 @@ impl SceneFragment{
         //split_whitespace gives an iterable, and collect turns that into a collection
         //since using &str, need to do .to_string when inserting into play_cfg because it is of type <String, String>
         let cfg_items: Vec<&str> = cfg_line.split_whitespace().collect(); 
-        // let mut stderr = io::stderr().lock();
 
         if cfg_items.len() > EXPECTED_TOKENS {
             if WHINGE.load(Ordering::SeqCst) {
@@ -134,29 +131,18 @@ impl SceneFragment{
         let mut playcfg_var = PlayConfig::new();
         // let mut stderr = io::stderr().lock();
 
-        println!("prepare start");
 
         if let Err(e_code) = self.read_config(cfg_fname, &mut playcfg_var) {
-            // let _ = writeln!(stderr,"Error: in script_gen, read_config call failed with error code {}", e_code);
             panic!("Error: in script_gen, read_config call failed with error code {}", e_code)
-            // return Err(GENERATION_FAILURE);
         }
-        // println!("read config end");
-        // println!("process config start");
+
 
         if let Err(e_code) = self.process_config(&playcfg_var) {
-            // let _ = writeln!(
-            //     stderr,
-            //     "Error: in script_gen, process_config call failed with error code {}",
-            //     e_code
-            // );
+
             panic!("SceneFragment::prepare failed in process_config thread erroed out {}", e_code);
         }
-        // println!("process config end");
 
         self.chars_in_play.sort_by(|a, b| SceneFragment::ref_compare(a, b));
-
-        println!("returning ok");
 
         Ok(())
     }
@@ -320,7 +306,7 @@ impl SceneFragment{
 
 
 
-    //added function to check 2 arc locked players
+    //function to check 2 arc locked players
     pub fn ref_compare(player1: &Arc<Mutex<Player>>, player2: &Arc<Mutex<Player>>) -> std::cmp::Ordering{
         
         match (player1.lock(), player2.lock()){

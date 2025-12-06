@@ -79,19 +79,15 @@ impl Play{
                     });
 
                     
-                    //join threads that call scene fragments
                     handles.push(handle);
-                    println!("handle pushed for a_cfg");
                 }
             }}
         }
         
 
-        println!("Going to join the handles");
         for handle in handles {
             match handle.join() {
                 Ok(result) => {
-                    println!("join success for handle");
                     if let Err(e_code) = result {
                         let _ = writeln!(stderr,"Error from process config of Play after calling prepare on Fragment: {}", e_code);
                         return Err(GENERATION_FAILURE);
@@ -174,7 +170,6 @@ impl Play{
     //calls the read_config and process_config in order 
     pub fn prepare(&mut self, cfg_fname: &String) -> Result<(), u8> {
         //change the original script gen params: play_title: &mut String, play_vec: &mut Play to fields from Play struct
-        println!("Inside prepare play");
         let mut playcfg_var = ScriptConfig::new();
         let mut stderr = io::stderr().lock();
 
@@ -183,13 +178,11 @@ impl Play{
             let _ = writeln!(stderr,"Error: in prepare, read_config call failed with error code {}", e_code);
             return Err(GENERATION_FAILURE);
         }
-        println!("read config completed for play");
 
         if let Err(e_code) = self.process_config(&playcfg_var) {
             let _ = writeln!(stderr,"Error: in prepare, process_config call failed with error code {}", e_code);
             return Err(GENERATION_FAILURE);
         }
-        println!("process config completed for play");
 
         //chheck if fragments exist and the first one is a title
         if self.fragments.is_empty(){
@@ -245,7 +238,7 @@ impl Play{
                     let prev_fragment_idx = cur_fragment_idx - 1;
 
                     //NESTED FOR PREV SCENE
-                    match self.fragments[prev_fragment_idx].lock() { //get reference to previous fragment
+                    match self.fragments[prev_fragment_idx].lock() { //get reference to prev fragment
                     Ok(prev_scene_ref) => {
                         scene_ref.enter(&*prev_scene_ref); //do the enter call
                     }

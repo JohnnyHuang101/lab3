@@ -1,4 +1,5 @@
 //server.rs binds TCP listner, provides run method that spawns child threads for manage new socket conns. Aman Verma, Hanson Li, Johnny Huang
+
 use std::net::TcpListener;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::thread;
@@ -41,6 +42,7 @@ impl Server {
 
 
 
+    //this func responsible for accepting new socket conn from client, reads the token from client, opens the token as filename if valid, then serves content of file back to client
     pub fn run(&self) {
         //only going run if the server is open, safety chejck
         if self.listener.is_none() {
@@ -82,7 +84,6 @@ impl Server {
                     //tok2str, using lossy version since it is less strict, we can let our conditions downstream check for validity
                     let token = String::from_utf8_lossy(&buffer[..bytes_read]).trim().to_string();
 
-                    //handle "quit"
                     if token == "quit" {
                         println!("shutting down server!");
                         CANCEL.store(true, Ordering::SeqCst);

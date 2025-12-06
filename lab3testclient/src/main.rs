@@ -1,3 +1,5 @@
+//simple client that tests connection to server and see if it can server files. Aman Verma, Hanson Li, Johnny Huang
+
 use std::env;
 use std::io::{self, BufRead, BufReader, Write};
 use std::net::TcpStream;
@@ -10,7 +12,7 @@ fn main() -> io::Result<()> {
 
     if args.len() != 3 {
         eprintln!("Usage is {} <address:port> <token>", args[0]);
-        process::exit(1); // Return an error code
+        process::exit(1);
     }
 
     let address = &args[1];

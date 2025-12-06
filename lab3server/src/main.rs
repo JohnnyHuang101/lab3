@@ -26,7 +26,7 @@ pub fn main() -> ReturnWrapper {
     let mut server = Server::new();
 
     if let Err(e) = server.open(address) {
-        eprintln!("failed to open server on adress {}: {}", address, e);
+        eprintln!("failed to open server on adress: {} with err code: {}", address, e);
         return ReturnWrapper::new(CONNECTION_ERR);
     }
 
