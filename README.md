@@ -1,4 +1,4 @@
-# CSE 5402 Fall 2025 Lab 2
+# CSE 5402 Fall 2025 Lab 3
 
 ## Teammates
     * Aman Verma - aman.v@wustl.edu
@@ -101,7 +101,7 @@ lab3server
 ```
 
 ## Program Overview
-* Our program consists of a Sever rust package **lab3server** responsible for serving the play files stored in the folder and a Client rust package **lab3cleint.rs** responsible for ingesting both local play files (in our 'data' folder) (also have a test client **lab3testclient** that tests server connection and remote file serving). 
+* Our program consists of a Sever rust package **lab3server** responsible for serving the play files stored in the folder and a Client rust package **lab3client** responsible for ingesting both local play files (in our 'data' folder) (also have a test client **lab3testclient** that tests server connection and remote file serving). 
     * **server: lab3server** Main logic handled in Run method. Continuously listens for client connections. Reads client sent tokens (remote filenames), and returns to client the content of the remote file if it exists. 
     * **client: lab3client** Responsible for processing both remote and local script/config files to recite a play. Takes in file name, either local (relative path) or remote (existing file in the lab3server, using the 'net:(ip_addr):(port_num):' prefix infront of filename). Uses get_buffered_reader to return content of local file or requested content of remote file returned by Server. Keeps the same logic as lab2 for processing the script and config files, but refactored for multi-threaded processing.
     * **test client: lab3testclient**: 1 file program that tests if we can cannot to the server and have it serve files.
@@ -114,8 +114,6 @@ lab3server
     * Our client does a bulk of the compute, whereas the server is just mainly responsible for serving its remote files to the client. From doing this project and from the Piazza discussion, we learned about the fat client/thin server and fat server/thin client concepts. 
     * We noticed when implemeting the Run method for the Server, there wasn't a requirment for using buffered reader and writers. We wonder if this is because for our thin server approach, we are only reading in one line and printing out a handful of lines so a buffer is not needed. But in a fat server approach where the server handles the actual processing, a buffered reader/writer may be needed.
     * We noticed one advantage with the fat client setup is the ability to handle local/remote file mixes. With the addition of the get_buffered_reader function in script_gen, our fat client can process both local and remote server files for a play. However, we think it'd be more complex for a fat server to retrieve local client files--this would likely invovle the client sending the file to the server, which makes a fat server/thin client setup more diffcult for this project.
-* ### Deadlocks 
-    * One challenge we spent alot of time on debugging was deadlocks with overuse of .lock(). It was hard to pinpoint where the deadlock was happening, so initally we removed all locks and iteratively added back in locks only at the necessary locations. 
 
 # Usage
 * CD into our unzipped folder, it should contain the data, lab3server, lab3client, and lab3testclient folders.
@@ -127,7 +125,7 @@ lab3server
 
 
 # Testing
-* we tested the provided partial_hamelt-act_ii_script.txt and partial_macbeth_act_i_script.txt, verified their output and line orders, and the outputs are stored at
+* we tested the provided partial_hamelt-act_ii_script.txt and partial_macbeth_act_i_script.txt, verified their output and line orders, and the outputs are stored at **./partial_hamlet_output.txt** and **./partial_macbeth_output.txt**
 * Local, Remote, and Local/Remote mix testing:
     * for lab provided play script/config/speak files, we store local copies of it in the **data** folder and the remote versions within the **lab3server** folder.
     * testing local and remote scripts separatley:
@@ -139,8 +137,8 @@ lab3server
             * We also created the lab3server/localremotemix_partial_macbeth_act_i_script.txt file, that references a fully local macbeth_i_1_config.txt and macbeth_i_2b_config.txt file and fully remote macbeth_i_2a_config.txt file. Testing shows correct delievery for the macbeth act 1 script.
         * additional local/remote mixed tests:
             * we created a johnny_file.txt with corresponding config file johnny_file_config.txt in **lab3server** folder. In our local **data** folder, we added the johnny_file_config.txt into the test_1_script.txt file. We then ran this local script file with ```cargo run ../data/test_1_script.txt```, and our program correctly printed out boht the local speak files in **data** and the added remote file johnny_file.txt. 
-* Stress testing with multiple clients:
-    * we stressed tested our server by running 5 clients at once, each with a different remote script file (test_1_script.txt is local but has a remote config file) using the command ```(cargo run net:127.0.0.1:8124:partial_macbeth_act_i_script.txt & cargo run net:127.0.0.1:8124:partial_hamlet_act_ii_script.txt & cargo run ../data/test_1_script.txt & cargo run net:127.0.0.1:8124:localremotemix_partial_macbeth_act_i_script.txt & cargo run net:127.0.0.1:8124:localremotemix_partial_hamlet_act_ii_script.txt wait) > stress_test_output.txt``` 
+* **Stress testing with multiple clients:**
+    * we stressed tested our server by running 5 clients at once, each with a different remote script file (test_1_script.txt is local but has a remote config file) using the command ```(cargo run net:127.0.0.1:8124:partial_macbeth_act_i_script.txt & cargo run net:127.0.0.1:8124:partial_hamlet_act_ii_script.txt & cargo run ../data/test_1_script.txt & cargo run net:127.0.0.1:8124:localremotemix_partial_macbeth_act_i_script.txt & cargo run net:127.0.0.1:8124:localremotemix_partial_hamlet_act_ii_script.txt & wait) > stress_test_output.txt``` 
     * our program output printed out all 3 scripts (localremotemix_partial_macbeth_act_i_script and localremotemix_partial_hamlet_act_ii_script are the macbeth and hamlet scripts using mixed remote/local files). The lines within the scripts are also in-order, and overall the results look correct.
     * result for output of our stress test is stored at **stress_test_output.txt**
 * Out of order lines testing:
