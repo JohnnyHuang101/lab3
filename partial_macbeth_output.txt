@@ -1,34 +1,3 @@
-Inside prepare play
-calling get buffered reader
-read config completed for play
-handle pushed for a_cfg
-prepare start
-calling get buffered reader
-prepare start
-calling get buffered reader
-handle pushed for a_cfg
-calling get buffered reader
-calling get buffered reader
-calling get buffered reader
-calling get buffered reader
-handle pushed for a_cfg
-Going to join the handles
-returning ok
-calling get buffered reader
-calling get buffered reader
-calling get buffered reader
-prepare start
-calling get buffered reader
-join success for handle
-returning ok
-calling get buffered reader
-calling get buffered reader
-calling get buffered reader
-join success for handle
-calling get buffered reader
-returning ok
-join success for handle
-process config completed for play
 "Macbeth ACT I SCENE I An open Place Thunder and Lightning by William Shakespeare"!
 [Enter "FIRST_WITCH".]
 [Enter "SECOND_WITCH".]
